@@ -1,34 +1,49 @@
+
 import streamlit as st
 import openai
 import requests
-import black
 import spacy
 
 # Load spaCy model for named entity recognition
 nlp = spacy.load("en_core_web_lg")
 
 # Set your OpenAI GPT-3 API key
-openai.api_key = "Your_API_KEY"
+openai.api_key = Your_API_KEY
 
+def generate_text(prompt, num_sections=7):
+        # Define the chat messages with user prompt and system message
+    messages = [
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": f"Generate an article with {num_sections} sections on the topic of: {prompt}"}
+    ]
 
-def generate_text(prompt):
-    # Use OpenAI GPT-3 to generate text based on the prompt
-    response = openai.Completion.create(
-        engine="text-davinci-003",
-        prompt=prompt,
-        max_tokens=300,  # Increase the maximum number of tokens to get more content
-        n=1,    
-        stop=None,
-        temperature=0.7,
-    )
-    return response.choices[0].text.strip()
+    # Add user messages for each section
+    for section_number in range(1, num_sections + 1):
+        user_message = {"role": "user", "content": f"Section {section_number}:"}
+        messages.append(user_message)
+
+        # Add assistant message (initially empty for the model to generate)
+        assistant_message = {"role": "assistant", "content": ""}
+        messages.append(assistant_message)
+
+    # Define the parameters for the chat completion
+    params = {
+        "model": "gpt-3.5-turbo",
+        "messages": messages
+    }
+
+    # Make the API call
+    response = openai.ChatCompletion.create(**params)
+
+    # Extract and return the generated article
+    return response['choices'][0]['message']['content']
 
 def generate_image(description):
 
     url = 'https://api.openai.com/v1/images/generations'
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': f'Bearer {Your_API_KEY}'
+        'Authorization': f'Bearer Your_API_KEY'
     }
 
     data = {
@@ -63,7 +78,7 @@ def main():
 
         # Display the generated text
         st.subheader("Generated Text:")
-        st.code(formatted_code, language='python')
+        st.write(formatted_code)
 
         # Generate an image based on the entire generated text
         st.subheader("Image for the Entire Text")
@@ -74,4 +89,8 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+
 
