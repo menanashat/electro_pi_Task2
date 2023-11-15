@@ -8,28 +8,42 @@ import spacy
 nlp = spacy.load("en_core_web_lg")
 
 # Set your OpenAI GPT-3 API key
-openai.api_key = "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"
+openai.api_key = "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"
 UNSPLASH_ACCESS_KEY = "eN4u15zCIln3IkJv91HW6sEkkjkuxi1jplNkrVsGoJ8"
 
 def generate_text(prompt):
     # Use OpenAI GPT-3 to generate text based on the prompt
     response = openai.Completion.create(
-        engine="text-davinci-002",
+        engine="text-davinci-003",
         prompt=prompt,
         max_tokens=300,  # Increase the maximum number of tokens to get more content
-        n=1,
+        n=1,    
         stop=None,
         temperature=0.7,
     )
     return response.choices[0].text.strip()
 
 def generate_image(description):
-    # Use Unsplash API to get a relevant image based on the description
-    response = requests.get(
-        f"https://api.unsplash.com/photos/random?query={description}&client_id={UNSPLASH_ACCESS_KEY}"
-    )
-    data = response.json()
-    return data["urls"]["regular"] if data else None
+
+    url = 'https://api.openai.com/v1/images/generations'
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': f'Bearer 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'
+    }
+
+    data = {
+        'model': 'dall-e-3',
+        'prompt': description,
+        'n': 1,
+        'size': '1024x1024'
+    }
+
+    response = requests.post(url, json=data, headers=headers)
+
+
+
+    # Extract the URL from the response
+    return response.json()['data'][0]['url']
 
 def formate_code(code):
     return code
@@ -53,7 +67,7 @@ def main():
 
         # Generate an image based on the entire generated text
         st.subheader("Image for the Entire Text")
-        generated_image = generate_image(generated_text)
+        generated_image = generate_image(user_input)
 
         # Display the generated image
         st.image(generated_image, caption="Image for the Entire Text", use_column_width=True)
