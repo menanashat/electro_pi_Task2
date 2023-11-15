@@ -1,96 +1,63 @@
-# # import streamlit as st
-# import transformers
-# from transformers import pipeline
-# from transformers import AutoModelForSeq2SeqLM
-# from transformers import AutoTokenizer
-# # import dalle2
-# generator = pipeline('text-generation', model = 'gpt2')
-# asd=generator("Hello, I'm a language model", max_length =330, num_return_sequences=1)
-# print(asd[0]["generated_text"])
-# # Initialize text generation model
-# tokenizer = AutoTokenizer.from_pretrained("gptj-6b")
-# model = AutoModelForSeq2SeqLM.from_pretrained("gptj-6b")
-
-# # Initialize image generation model
-# dalle = dalle2.Dalle2()
-
-# def generate_text(topic):
-#     # Generate text based on the input topic
-#     input_ids = tokenizer(topic, return_tensors="pt")
-#     outputs = model.generate(input_ids=input_ids, max_length=512)
-#     generated_text = tokenizer.decode(outputs.last_output_ids, skip_eos=True)
-#     return generated_text
-
-# def generate_images(text):
-#     # Extract keywords and phrases for image generation
-#     keywords = extract_keywords(text)
-
-#     # Generate images for each keyword
-#     generated_images = []
-#     for keyword in keywords:
-#         image = dalle.generate(keyword)
-#         generated_images.append(image)
-
-#     return generated_images
-
-# st.title("AI Post Generator")
-
-# # Create text input field
-# topic = st.text_input("Enter a topic for your post:")
-
-# # Generate button
-# if st.button("Generate Post"):
-#     # Generate text and images
-#     generated_text = generate_text(topic)
-#     generated_images = generate_images(generated_text)
-
-#     # Split generated text into sections
-#     sections = split_text_into_sections(generated_text)
-
-#     # Display generated content
-#     for section, image in zip(sections, generated_images):
-#         st.markdown("## Section")
-#         st.markdown(section)
-#         st.image(image)
-
-
-
-
-
-
-
-
-
-
 import streamlit as st
-from PIL import Image
-from transformers import pipeline
+import openai
+import requests
+import black
+import spacy
 
-# Load the text generation pipeline
-generator = pipeline('text-generation', model='gpt2')
+# Load spaCy model for named entity recognition
+nlp = spacy.load("en_core_web_lg")
 
-# Streamlit app
-st.title("Text and Image Generation")
+# Set your OpenAI GPT-3 API key
+openai.api_key = "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"
+UNSPLASH_ACCESS_KEY = "eN4u15zCIln3IkJv91HW6sEkkjkuxi1jplNkrVsGoJ8"
 
-# Text input
-user_input = st.text_area("Enter your text:", "I want to create a post about AI in healthcare.")
+def generate_text(prompt):
+    # Use OpenAI GPT-3 to generate text based on the prompt
+    response = openai.Completion.create(
+        engine="text-davinci-002",
+        prompt=prompt,
+        max_tokens=300,  # Increase the maximum number of tokens to get more content
+        n=1,
+        stop=None,
+        temperature=0.7,
+    )
+    return response.choices[0].text.strip()
 
-# Button to generate text and image
-if st.button("Generate"):
-    # Generate text
-    generated_text = generator(user_input, max_length=330, num_return_sequences=1)[0]["generated_text"]
+def generate_image(description):
+    # Use Unsplash API to get a relevant image based on the description
+    response = requests.get(
+        f"https://api.unsplash.com/photos/random?query={description}&client_id={UNSPLASH_ACCESS_KEY}"
+    )
+    data = response.json()
+    return data["urls"]["regular"] if data else None
 
-    # Display generated text
-    st.subheader("Generated Text:")
-    st.write(generated_text)
+def formate_code(code):
+    return code
 
-    # Image generation logic (replace this with your actual image generation code)
-    # For example, let's generate a placeholder image
-    placeholder_image = Image.new("RGB", (300, 300), color="lightblue")
+def main():
+    st.title("Text and Image Generator")
 
-    # Display generated image
-    st.subheader("Generated Image:")
-    st.image(placeholder_image, caption="Generated Image", use_column_width=True)
+    # Input for the user's prompt
+    user_input = st.text_area("Enter your prompt for text generation:")
 
-# Note: Replace the placeholder image generation logic with your actual image generation code.
-# You can use libraries like PIL, OpenCV, or any other image processing libraries for image generation.
+    if st.button("Generate"):
+        # Generate text based on the user's input
+        generated_text = generate_text(user_input)
+
+        # Format the generated code
+        formatted_code = formate_code(generated_text)
+
+        # Display the generated text
+        st.subheader("Generated Text:")
+        st.code(formatted_code, language='python')
+
+        # Generate an image based on the entire generated text
+        st.subheader("Image for the Entire Text")
+        generated_image = generate_image(generated_text)
+
+        # Display the generated image
+        st.image(generated_image, caption="Image for the Entire Text", use_column_width=True)
+
+if __name__ == "__main__":
+    main()
+
