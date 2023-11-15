@@ -8,8 +8,8 @@ import spacy
 nlp = spacy.load("en_core_web_lg")
 
 # Set your OpenAI GPT-3 API key
-openai.api_key = "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"
-UNSPLASH_ACCESS_KEY = "eN4u15zCIln3IkJv91HW6sEkkjkuxi1jplNkrVsGoJ8"
+openai.api_key = "Your_API_KEY"
+
 
 def generate_text(prompt):
     # Use OpenAI GPT-3 to generate text based on the prompt
@@ -28,7 +28,7 @@ def generate_image(description):
     url = 'https://api.openai.com/v1/images/generations'
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': f'Bearer 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'
+        'Authorization': f'Bearer {Your_API_KEY}'
     }
 
     data = {
