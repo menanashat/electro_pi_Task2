@@ -8,7 +8,7 @@ import spacy
 nlp = spacy.load("en_core_web_lg")
 
 # Set your OpenAI GPT-3 API key
-openai.api_key = "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"
+openai.api_key = "Enter_Your_Key"
 
 def generate_text(prompt, num_sections=9):
         # Define the chat messages with user prompt and system message
@@ -43,7 +43,7 @@ def generate_image(description):
     url = 'https://api.openai.com/v1/images/generations'
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': f'Bearer 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'
+        'Authorization': f'Bearer Enter_Your_Key'
     }
 
     data = {
