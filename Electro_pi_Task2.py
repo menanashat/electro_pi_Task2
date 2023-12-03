@@ -4,17 +4,15 @@ import openai
 import requests
 import spacy
 
-# Load spaCy model for named entity recognition
-nlp = spacy.load("en_core_web_lg")
 
 # Set your OpenAI GPT-3 API key
-openai.api_key = "Enter_Your_Key"
+openai.api_key = "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"
 
-def generate_text(prompt, num_sections=9):
+def generate_text(prompt, num_sections=7):
         # Define the chat messages with user prompt and system message
     messages = [
         {"role": "system", "content": "You are a helpful assistant."},
-        {"role": "user", "content": f"Generate an article with {num_sections} sections on the topic of: {prompt}"}
+        {"role": "user", "content": f"Generate an Blog blog post {num_sections} sections on the topic of: {prompt}"}
     ]
 
     # Add user messages for each section
@@ -43,7 +41,7 @@ def generate_image(description):
     url = 'https://api.openai.com/v1/images/generations'
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': f'Bearer Enter_Your_Key'
+        'Authorization': f'Bearer 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'
     }
 
     data = {
@@ -70,24 +68,26 @@ def main():
     user_input = st.text_area("Enter your prompt for text generation:")
 
     if st.button("Generate"):
+        try :
 
-        # Generate an image based on the entire generated text
-        st.subheader("Image for the Entire Text")
-        generated_image = generate_image(user_input)
+            # Generate an image based on the entire generated text
+            st.subheader("Image for the Entire Text")
+            generated_image = generate_image(user_input)
 
-        # Display the generated image
-        st.image(generated_image, caption="Image for the Entire Text", use_column_width=True)
+            # Display the generated image
+            st.image(generated_image, caption="Image for the Entire Text", use_column_width=True)
 
-        # Generate text based on the user's input
-        generated_text = generate_text(user_input)
+            # Generate text based on the user's input
+            generated_text = generate_text(user_input)
 
-        # Format the generated code
-        formatted_code = formate_code(generated_text)
+            # Format the generated code
+            formatted_code = formate_code(generated_text)
 
-        # Display the generated text
-        st.subheader("Generated Text:")
-        st.write(formatted_code)
-
+            # Display the generated text
+            st.subheader("Generated Text:")
+            st.write(formatted_code)
+        except Excwption as a:
+            st.error(f"An error occurred: {a}")
 
 
 if __name__ == "__main__":
